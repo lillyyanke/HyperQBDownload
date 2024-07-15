@@ -1,0 +1,1 @@
+~(X(~(high_A<->high_B))/\G(((~low_A\/low_B)/\(~low_B\/low_A))))

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script> -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline';">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="style.css">
+    <title>HyperQB To-Go</title>
+</head>
+
+<body>
+    <header>
+        <h1>HyperQB Web UI Project</h1>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-linkedin"></i></a>
+        <a href="#"><i class="fab fa-github"></i></a>
+        <div class="tab">
+            <!-- <ul> -->
+                <button class="tablinks active" onclick="openModel(event, 'model_1_init')">Model 1 Init</button>
+                <button class="tablinks" onclick="openModel(event, 'model_1_trans')">Model 1 Trans</button>
+                <button class="tablinks" onclick="openModel(event, 'model_2_init')">Model 2 Init</button>
+                <button class="tablinks" onclick="openModel(event, 'model_2_trans')">Model 2 Trans</button>
+                <button class="tablinks" onclick="openModel(event, 'p_hq')">P hq</button>
+            <!-- </ul> -->
+        </div>
+    </header>
+
+    <main>
+
+        <div class="input-container">
+            <textarea id="tabContents" placeholder="Type or paste file contents here, or upload a file..."></textarea>
+            <input type="file" id="fileUpload" onchange="handleFileUpload()">
+        </div>
+
+        <!-- -k input -->
+        <div class="form-row">
+            <label for="number_k">K:</label>
+            <input type="text" id="number_k" name="number_k">
+           </div>      
+        
+        <!-- -F input -->
+        <div class="form-row">
+            <label for="quantifier_f">F:</label>
+            <input type="text" id="quantifier_f" name="quantifier_f">
+           </div>  
+
+        <div class="form-row">
+            <label for="semantics">Semantics:</label>
+            <select id="semantics" name="semantics">
+                <option value="PES">PES</option>
+                <option value="OPT">OPT</option>
+                <option value="HPES">HPES</option>
+                <option value="HOPT">HOPT</option>
+            </select>
+           </div> 
+
+        <!-- test folder name -->
+        <div class="form-row">
+            <label for="test_folder">Name of the folder files will be placed in:</label>
+            <input type="text" id="test_folder" name="test_folder">
+           </div>      
+
+        <div class="form-row">
+            <label for="examples">Try an Example:</label>
+            <select id="examples" name="examples">
+                <option value="" disabled selected>Select an example</option>
+                <option value="example1">Example 1</option>
+                <option value="example2">Example 2</option>
+                <option value="example3">Example 3</option>
+            </select>
+        </div>   
+
+        <button id="runButton">Run</button>
+        <button id="saveButton">Save</button>
+        <button id="clearButton">Clear</button>
+        <div class="output-container">
+            <div id="output" class="terminal"></div>
+        </div>
+
+    </main>
+
+    <script>
+
+            document.getElementById('runButton').addEventListener('click', async () => {//function(event) {
+                // const model1Init = tabContents['model_1_init'];//document.getElementById('model_1_init').value;
+                // const model1Trans = tabContents['model_1_trans'];//document.getElementById('model_1_trans').value;
+
+                // try {
+                //     const result = await window.electronAPI.runBinary(model1Init, model1Trans);
+                //     document.getElementById('output').innerText = result;
+                // } catch (error) {
+                //     document.getElementById('output').innerText = `Error: ${error.message}`;
+                // }
+                let currentTabName = getCurrentTabName();
+                //console.log("help",currentTabName);
+                //console.log(tabContents);
+                if (currentTabName) {
+                    tabContents[currentTabName] = document.getElementById('tabContents').value;
+                }
+                if (document.getElementById('test_folder').value) {
+                    tabContents['test_folder'] = document.getElementById('test_folder').value;
+                }
+                if (document.getElementById('number_k').value) {
+                    tabContents['number_k'] = document.getElementById('number_k').value;
+                }
+                else {
+                    tabContents['number_k'] = 3;
+                }
+                if (document.getElementById('quantifier_f').value) {
+                    tabContents['quantifier_f'] = document.getElementById('quantifier_f').value;
+                }
+                else {
+                    tabContents['quantifier_f'] = 'AA';
+                }
+                if (document.getElementById('semantics').value) {
+                    tabContents['semantics'] = document.getElementById('semantics').value;
+                }
+                else {
+                    tabContents['semantics'] = 'PES';
+                }
+
+                const response = await window.electron.ipcRenderer.invoke('process-files', tabContents);
+
+                if (response.error) {
+                    console.error(`Error: ${response.error}`);
+                } else {
+                    console.log(`Result: ${response.result}`);
+                    document.getElementById('output').innerText = `${response.result}`;
+                }
+
+        });
+
+
+        // Set the initial active tab on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the first tab button and simulate a click to activate it
+            let firstTabButton = document.querySelector('.tablinks');
+            console.log(firstTabButton);
+            if (firstTabButton) {
+                firstTabButton.click();
+            }
+        });
+
+        const examples = {
+            example1: {
+                model_1_init: 'I_1.bool',
+                model_1_trans: 'R_1.bool',
+                model_2_init: 'I_2.bool',
+                model_2_trans: 'R_2.bool',
+                p_hq: 'P.hq',
+                number_k: '3',
+                quantifier_f: 'AA',
+                semantics:'PES',
+                test_folder:'test'
+            },
+            example2: {
+                model_1_init: 'I_1.bool',
+                model_1_trans: 'R_1.bool',
+                model_2_init: 'I_2.bool',
+                model_2_trans: 'R_2.bool',
+                p_hq: 'P.hq',
+                number_k: '3',
+                quantifier_f: 'AA',
+                semantics:'OPT',
+                test_folder:'test2'
+            },
+            example3: {
+                model_1_init: 'I_1.bool',
+                model_1_trans: 'R_1.bool',
+                model_2_init: 'I_2.bool',
+                model_2_trans: 'R_2.bool',
+                p_hq: 'P.hq',
+                number_k: '3',
+                quantifier_f: 'AA',
+                semantics:'PES',
+                test_folder:'test3'
+            }
+        };
+
+        document.getElementById('examples').addEventListener('change', function(event) {
+            //let currentTabName = getCurrentTabName();
+            const selectedExample = event.target.value;
+            const exampleData = examples[selectedExample];
+            if (exampleData) {
+                clearInterface();
+                document.getElementById('test_folder').value = exampleData.test_folder;
+                tabContents['test_folder'] = exampleData.test_folder;
+                document.getElementById('number_k').value = exampleData.number_k;
+                tabContents['number_k'] = exampleData.number_k;
+                document.getElementById('quantifier_f').value = exampleData.quantifier_f;
+                tabContents['quantifier_f'] = exampleData.quantifier_f;
+                document.getElementById('semantics').value = exampleData.semantics;
+                tabContents['semantics'] = exampleData.semantics;
+
+                loadFileContents('model_1_init', exampleData.model_1_init, exampleData.test_folder);
+                loadFileContents('model_1_trans', exampleData.model_1_trans, exampleData.test_folder);
+                loadFileContents('model_2_init', exampleData.model_2_init, exampleData.test_folder);
+                loadFileContents('model_2_trans', exampleData.model_2_trans, exampleData.test_folder);
+                loadFileContents('p_hq', exampleData.p_hq, exampleData.test_folder);
+                let currentTabName = getCurrentTabName();
+                document.getElementById('tabContents').value = tabContents[currentTabName];
+                console.log("Currently active tab examples:", currentTabName);
+                console.log("Tabs:", tabContents['model_1_init']);
+            }
+        });
+
+        // Function to handle file upload
+        function loadFileContents(tab, file, folder) {
+            console.log(folder+'/'+file);
+            fetch(folder + '/' + file)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    tabContents[tab] = data;
+                    let currentTabName = getCurrentTabName();
+                    if (currentTabName == tab)
+                        document.getElementById('tabContents').value = data;
+                })
+                .catch(error => {
+                    console.error('There was a problem with fetching the file:', error);
+                    alert('There was a problem with fetching the file contents.');
+                });
+
+        }
+
+
+        // Function to clear interface elements
+        function clearInterface() {
+            // Clear input boxes
+            tabContents['test_folder'] = '';
+            tabContents['model_1_init'] ='';
+            tabContents['model_1_trans'] ='';
+            tabContents['model_2_init'] ='';
+            tabContents['model_2_trans'] ='';
+            tabContents['p_hq'] ='';
+            tabContents['number_k'] ='';
+            tabContents['quantifier_f'] ='';
+            tabContents['semantics'] ='';
+            console.log("Current tab contents:", tabContents);
+
+            // Clear input boxes
+            document.getElementById('number_k').value = '';
+            document.getElementById('quantifier_f').value = '';
+            document.getElementById('semantics').value = '';
+            document.getElementById('test_folder').value = '';
+            let currentTabName = getCurrentTabName();
+            document.getElementById('tabContents').value = tabContents[currentTabName];
+            
+            //Clear result
+            document.getElementById('output').innerText = '';
+        }  
+
+        // Event listener for Clear Current Case button
+        document.getElementById('clearButton').addEventListener('click', function(event) {
+            event.preventDefault();
+            clearInterface();
+        });
+
+        // Store content for each tab
+        let tabContents = {
+            model_1_init: '',
+            model_1_trans: '',
+            model_2_init: '',
+            model_2_trans: '',
+            p_hq: '',
+            number_k: '',
+            quantifier_f: '',
+            semantics:'',
+            test_folder:''
+        };
+
+        function openModel(evt, modelName) {
+            let currentTabName = getCurrentTabName();
+            //console.log("help",currentTabName);
+            //console.log(tabContents);
+            if (currentTabName) {
+                tabContents[currentTabName] = document.getElementById('tabContents').value;
+            }
+
+            let tablinks = document.getElementsByClassName("tablinks");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+
+            evt.currentTarget.classList.add("active");
+
+            document.getElementById('tabContents').value = tabContents[modelName];
+            document.getElementById('fileUpload').value = '';
+            document.getElementById('tabContents').focus();
+            //console.log(tabContents);
+
+        }
+
+        // Function to get the name of the currently active tab
+        function getCurrentTabName() {
+            let activeTab = document.querySelector('.tablinks.active');
+            if (activeTab) {
+                return activeTab.textContent.trim().replace(/\s+/g, '_').toLowerCase();
+            }
+            return null; // Return null if no active tab found (though ideally should always have an active tab)
+        }
+
+        // Function to handle file upload
+        function handleFileUpload() {
+            let fileUpload = document.getElementById('fileUpload');
+            let file = fileUpload.files[0];
+
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    // Get the currently active tab name
+                    let currentTabName = getCurrentTabName();
+                    // Update the textarea with the file contents
+                    document.getElementById('tabContents').value = e.target.result;
+                    // Store the content in the respective tabContents object
+                    tabContents[currentTabName] = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        document.getElementById('saveButton').addEventListener('click', function() {
+            const { fs, path } = window.electron;
+            // Get the contents of the textareas
+            const test_folder = tabContents['test_folder'];
+            const model_1_init = tabContents['model_1_init'];
+            const model_1_trans = tabContents['model_1_trans'];
+            const model_2_init = tabContents['model_2_init'];
+            const model_2_trans = tabContents['model_2_trans'];
+            const p_hq = tabContents['p_hq'];
+            const output = document.getElementById('output').innerText;
+            console.log(output);
+
+            // Path to the HQ.qcir file
+            //const hqFilePath = path.join(test_folder, 'HQ.qcir');
+
+            // Read the content of the HQ.qcir file
+            //
+
+            saveFilesAsZip(test_folder, [
+                { filename: 'I_1.bool', content: model_1_init },
+                { filename: 'R_1.bool', content: model_1_trans },
+                { filename: 'I_2.bool', content: model_2_init },
+                { filename: 'R_2.bool', content: model_2_trans },
+                { filename: 'P.hq', content: p_hq },
+                { filename: 'output.txt', content: output }
+                //{ filename: 'HQ.qcir', content: hqContent }
+            ]);
+        });
+
+        function saveFilesAsZip(folderName, files) {
+            const zip = new JSZip();
+
+            files.forEach(file => {
+                zip.file(file.filename, file.content);
+            });
+
+            zip.generateAsync({ type: 'blob' }).then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `result.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }).catch(err => {
+                console.error('Error creating zip file', err);
+            });
+        }
+
+
+    </script>
+</body>
+
+</html>
