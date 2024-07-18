@@ -1,6 +1,6 @@
 {
   "name": "hyperqb-app",
-  "version": "1.0.19",
+  "version": "1.0.46",
   "main": "main.js",
   "description": "HyperQB Downloadable Edition",
   "author": "Lilly Yanke! <yankelil@msu.edu>",
@@ -24,9 +24,11 @@
       "test/*",
       "test2/*",
       "test3/*",
+      "test4/*",
       "build/**/*",
       "package.json",
-      "preload.js"
+      "preload.js",
+      "dist/add2"
     ],
     "mac": {
       "category": "public.app-category.utilities",

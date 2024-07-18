@@ -122,14 +122,41 @@
                 else {
                     tabContents['semantics'] = 'PES';
                 }
+                console.log(tabContents);
+                // const output_folder = "./" + tabContents['test_folder'];
+                //const { fs, path } = window.electron;
+                // console.log("output folder:", output_folder);
+                // if (!fs.existsSync(output_folder)) {
+                //     fs.mkdirSync(output_folder, { recursive: true });
+                // }
 
                 const response = await window.electron.ipcRenderer.invoke('process-files', tabContents);
 
                 if (response.error) {
                     console.error(`Error: ${response.error}`);
-                } else {
+                } 
+                else {
                     console.log(`Result: ${response.result}`);
-                    document.getElementById('output').innerText = `${response.result}`;
+                    document.getElementById('output').innerText = response.result;
+                    //document.getElementById('output').innerText = `${response.result}`;
+                    // const output_file = "./" + tabContents['test_folder'] + '/' + 'HQ.qcir';
+                    // console.log("output file for reading:", output_file);
+                    // fetch(output_file)
+                    //     .then(response => {
+                    //         if (!response.ok) {
+                    //             throw new Error('Network response was not ok');
+                    //         }
+                    //         return response.text();
+                    //     })
+                    //     .then(data => {
+                    //         //document.getElementById('output').value = data;
+                    //         document.getElementById('output').innerText = data;
+                    //     })
+                    //     .catch(error => {
+                    //         console.error('Error fetching file:', error);
+                    //         alert('Error fetching file. Please try again.');
+                    //     });
+
                 }
 
         });
