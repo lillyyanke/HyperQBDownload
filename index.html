@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script> -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline';">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-    <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous"> -->
     <link rel="stylesheet" href="style.css">
     <title>HyperQB To-Go</title>
 </head>
@@ -19,13 +17,11 @@
         <a href="#"><i class="fab fa-linkedin"></i></a>
         <a href="#"><i class="fab fa-github"></i></a>
         <div class="tab">
-            <!-- <ul> -->
                 <button class="tablinks active" onclick="openModel(event, 'model_1_init')">Model 1 Init</button>
                 <button class="tablinks" onclick="openModel(event, 'model_1_trans')">Model 1 Trans</button>
                 <button class="tablinks" onclick="openModel(event, 'model_2_init')">Model 2 Init</button>
                 <button class="tablinks" onclick="openModel(event, 'model_2_trans')">Model 2 Trans</button>
                 <button class="tablinks" onclick="openModel(event, 'p_hq')">P hq</button>
-            <!-- </ul> -->
         </div>
     </header>
 
@@ -75,7 +71,7 @@
         </div>   
 
         <button id="runButton">Run</button>
-        <button id="saveButton">Save</button>
+        <!-- <button id="saveButton">Save</button> -->
         <button id="clearButton">Clear</button>
         <div class="output-container">
             <div id="output" class="terminal"></div>
@@ -85,19 +81,9 @@
 
     <script>
 
-            document.getElementById('runButton').addEventListener('click', async () => {//function(event) {
-                // const model1Init = tabContents['model_1_init'];//document.getElementById('model_1_init').value;
-                // const model1Trans = tabContents['model_1_trans'];//document.getElementById('model_1_trans').value;
-
-                // try {
-                //     const result = await window.electronAPI.runBinary(model1Init, model1Trans);
-                //     document.getElementById('output').innerText = result;
-                // } catch (error) {
-                //     document.getElementById('output').innerText = `Error: ${error.message}`;
-                // }
+            document.getElementById('runButton').addEventListener('click', async () => {
+                document.getElementById('output').innerText = '';
                 let currentTabName = getCurrentTabName();
-                //console.log("help",currentTabName);
-                //console.log(tabContents);
                 if (currentTabName) {
                     tabContents[currentTabName] = document.getElementById('tabContents').value;
                 }
@@ -123,13 +109,6 @@
                     tabContents['semantics'] = 'PES';
                 }
                 console.log(tabContents);
-                // const output_folder = "./" + tabContents['test_folder'];
-                //const { fs, path } = window.electron;
-                // console.log("output folder:", output_folder);
-                // if (!fs.existsSync(output_folder)) {
-                //     fs.mkdirSync(output_folder, { recursive: true });
-                // }
-
                 const response = await window.electron.ipcRenderer.invoke('process-files', tabContents);
 
                 if (response.error) {
@@ -138,27 +117,7 @@
                 else {
                     console.log(`Result: ${response.result}`);
                     document.getElementById('output').innerText = response.result;
-                    //document.getElementById('output').innerText = `${response.result}`;
-                    // const output_file = "./" + tabContents['test_folder'] + '/' + 'HQ.qcir';
-                    // console.log("output file for reading:", output_file);
-                    // fetch(output_file)
-                    //     .then(response => {
-                    //         if (!response.ok) {
-                    //             throw new Error('Network response was not ok');
-                    //         }
-                    //         return response.text();
-                    //     })
-                    //     .then(data => {
-                    //         //document.getElementById('output').value = data;
-                    //         document.getElementById('output').innerText = data;
-                    //     })
-                    //     .catch(error => {
-                    //         console.error('Error fetching file:', error);
-                    //         alert('Error fetching file. Please try again.');
-                    //     });
-
                 }
-
         });
 
 
@@ -354,55 +313,55 @@
             }
         }
 
-        document.getElementById('saveButton').addEventListener('click', function() {
-            const { fs, path } = window.electron;
-            // Get the contents of the textareas
-            const test_folder = tabContents['test_folder'];
-            const model_1_init = tabContents['model_1_init'];
-            const model_1_trans = tabContents['model_1_trans'];
-            const model_2_init = tabContents['model_2_init'];
-            const model_2_trans = tabContents['model_2_trans'];
-            const p_hq = tabContents['p_hq'];
-            const output = document.getElementById('output').innerText;
-            console.log(output);
+        // document.getElementById('saveButton').addEventListener('click', function() {
+        //     const { fs, path } = window.electron;
+        //     // Get the contents of the textareas
+        //     const test_folder = tabContents['test_folder'];
+        //     const model_1_init = tabContents['model_1_init'];
+        //     const model_1_trans = tabContents['model_1_trans'];
+        //     const model_2_init = tabContents['model_2_init'];
+        //     const model_2_trans = tabContents['model_2_trans'];
+        //     const p_hq = tabContents['p_hq'];
+        //     const output = document.getElementById('output').innerText;
+        //     console.log(output);
 
-            // Path to the HQ.qcir file
-            //const hqFilePath = path.join(test_folder, 'HQ.qcir');
+        //     // Path to the HQ.qcir file
+        //     //const hqFilePath = path.join(test_folder, 'HQ.qcir');
 
-            // Read the content of the HQ.qcir file
-            //
+        //     // Read the content of the HQ.qcir file
+        //     //
 
-            saveFilesAsZip(test_folder, [
-                { filename: 'I_1.bool', content: model_1_init },
-                { filename: 'R_1.bool', content: model_1_trans },
-                { filename: 'I_2.bool', content: model_2_init },
-                { filename: 'R_2.bool', content: model_2_trans },
-                { filename: 'P.hq', content: p_hq },
-                { filename: 'output.txt', content: output }
-                //{ filename: 'HQ.qcir', content: hqContent }
-            ]);
-        });
+        //     saveFilesAsZip(test_folder, [
+        //         { filename: 'I_1.bool', content: model_1_init },
+        //         { filename: 'R_1.bool', content: model_1_trans },
+        //         { filename: 'I_2.bool', content: model_2_init },
+        //         { filename: 'R_2.bool', content: model_2_trans },
+        //         { filename: 'P.hq', content: p_hq },
+        //         { filename: 'output.txt', content: output }
+        //         //{ filename: 'HQ.qcir', content: hqContent }
+        //     ]);
+        // });
 
-        function saveFilesAsZip(folderName, files) {
-            const zip = new JSZip();
+        // function saveFilesAsZip(folderName, files) {
+        //     const zip = new JSZip();
 
-            files.forEach(file => {
-                zip.file(file.filename, file.content);
-            });
+        //     files.forEach(file => {
+        //         zip.file(file.filename, file.content);
+        //     });
 
-            zip.generateAsync({ type: 'blob' }).then(blob => {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `result.zip`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }).catch(err => {
-                console.error('Error creating zip file', err);
-            });
-        }
+        //     zip.generateAsync({ type: 'blob' }).then(blob => {
+        //         const url = URL.createObjectURL(blob);
+        //         const a = document.createElement('a');
+        //         a.href = url;
+        //         a.download = `result.zip`;
+        //         document.body.appendChild(a);
+        //         a.click();
+        //         document.body.removeChild(a);
+        //         URL.revokeObjectURL(url);
+        //     }).catch(err => {
+        //         console.error('Error creating zip file', err);
+        //     });
+        // }
 
 
     </script>

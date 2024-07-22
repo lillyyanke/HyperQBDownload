@@ -3,8 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { exec } = require('child_process');
-const { spawn } = require('child_process');
-
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
@@ -12,18 +10,14 @@ function createWindow() {
         height: 600,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),  // Preload script for secure IPC
-            contextIsolation: true,  // Security feature
-            enableRemoteModule: true, // Security feature
+            contextIsolation: true,  // Security 
+            enableRemoteModule: true, // Security 
             nodeIntegration: true
         }
     });
 
     mainWindow.loadFile('index.html');
     mainWindow.webContents.openDevTools(); // Open DevTools
-
-    mainWindow.webContents.once('did-frame-finish-load', () => {
-        mainWindow.webContents.openDevTools({ mode: 'detach' });
-    });
 }
 
 app.on('ready', createWindow);
@@ -31,12 +25,8 @@ app.on('ready', createWindow);
 // Function to process files
 function processFile(outputFolder, fileName, fileContent) {
     const currentDirectory = app.getPath('desktop');
-    //const test = '/Users/lillianyanke/Research2024/LocalUI/test/I_1.bool';
-
     const filePath = path.join(outputFolder, fileName);
     const filePathWDir = path.join(currentDirectory, filePath);
-    //const filePathWDir = filePath; 
-
     console.log(`File path: ${filePath}`);
     console.log(`File path with dir: ${filePathWDir}`);
 
@@ -102,16 +92,17 @@ ipcMain.handle('process-files', async (event, data) => {
         });
         }
 
-
+        // Process files
         const I1 = processFile(outputFolder, 'I_1.bool', model_1_init);
         const I2 = processFile(outputFolder, 'I_2.bool', model_2_init);
-
         const R1 = processFile(outputFolder, 'R_1.bool', model_1_trans);
         const R2 = processFile(outputFolder, 'R_2.bool', model_2_trans);
         const P = processFile(outputFolder, 'P.hq', p_hq);
 
+        // Extract binaries
         const genBinPath = extractBinary('genqbf');
         const quabsBinPath = extractBinary('quabs');
+
         try {
             fs.accessSync(genBinPath, fs.constants.X_OK);
             console.log("permission fine");
@@ -127,14 +118,10 @@ ipcMain.handle('process-files', async (event, data) => {
         const commandGen = `${genBinPath} -I ${I1} -R ${R1} -J ${I2} -S ${R2} -P ${P} -k ${number_k} -F ${quantifier_f} -f qcir -o ${outputFile} -sem ${semantics} -n --fast -new NN`;
         console.log(`Command Gen: ${commandGen}`);
         let genOutput = await execCommand(commandGen);
-
         console.log(`GenOutput: ${genOutput}`);
-
         const commandQuabs = `${quabsBinPath} ${outputFile}`;
         console.log(`Executing second command: ${commandQuabs}`);
-        
         let quabsOutput = await execCommand(commandQuabs);
-
         return { result: quabsOutput};
     } catch (error) {
         console.error(`Error: ${error.message}`);
@@ -146,7 +133,6 @@ ipcMain.handle('process-files', async (event, data) => {
 function execCommand(command) {
     return new Promise((resolve, reject) => {
         exec(command, (error, stdout, stderr) => {
-            //console.error(`Error exec: ${error.message}`);
             resolve(stdout);
             if (error) {
                 console.error(`Error exec: ${error.message}`);
