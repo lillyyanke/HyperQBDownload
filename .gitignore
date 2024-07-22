@@ -4,3 +4,4 @@ dist/*
 build/*
 testignore.txt
 node_modules
+dist
