@@ -1,6 +1,10 @@
-#HyperQBDownload README
+Hyper QB Web UI Project - Summer 2024
 
-## Install dependencies using npm:
-  npm insall
-Start the elecrtron app:
-  npm start
+To Use:
+    1. Install node.js and npm
+    2. Install electron
+        *npm install electron --save-dev*
+    3. Install all dependencies 
+        *npm install*
+    4. Run the app
+        *npm start*
