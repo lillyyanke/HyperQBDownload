@@ -9,7 +9,7 @@ To run locally:
 4. Run the app
   *npm start*
 
-To build and executable and fix permissions:
+To build an executable and fix permissions:
 1. *npm run dist*
 2. Open the dmg file and move to applications
 3. Go to applications folder and open a terminal at HyperQB_Download folder
