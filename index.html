@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <title>HyperQB To-Go</title>
 </head>
@@ -13,51 +12,81 @@
 <body>
     <header>
         <h1>HyperQB Web UI Project</h1>
-        <a href="#"><i class="fab fa-twitter"></i></a>
+        <div class="social-icons">
+        <a href="https://www.cse.msu.edu/tart/" target="_blank" class="social-icon">
+            <img src="assets/house-laptop-solid.svg" alt="Logo" class="social-icon-img">
+        </a>
+        <a href="https://x.com/TheBorzoo?ref_src=twsrc%5Etfw%7Ctwcamp%5Eembeddedtimeline%7Ctwterm%5Escreen-name%3ATheBorzoo%7Ctwcon%5Es1" target="_blank" class="social-icon">
+            <img src="assets/twitter.svg" alt="Twitter Logo" class="social-icon-img">
+        </a>
+        <a href="https://www.linkedin.com/in/borzoo-bonakdarpour-3717a677/" target="_blank" class="social-icon">
+            <img src="assets/linkedin.svg" alt="Linkedin Logo" class="social-icon-img">
+        </a>
+        <a href="https://github.com/TART-MSU/HyperQB" target="_blank" class="social-icon">
+            <img src="assets/github.svg" alt="Github Logo" class="social-icon-img">
+        </a>
         <a href="#"><i class="fab fa-linkedin"></i></a>
         <a href="#"><i class="fab fa-github"></i></a>
-        <div class="tab">
-                <button class="tablinks active" onclick="openModel(event, 'model_1_init')">Model 1 Init</button>
-                <button class="tablinks" onclick="openModel(event, 'model_1_trans')">Model 1 Trans</button>
-                <button class="tablinks" onclick="openModel(event, 'model_2_init')">Model 2 Init</button>
-                <button class="tablinks" onclick="openModel(event, 'model_2_trans')">Model 2 Trans</button>
-                <button class="tablinks" onclick="openModel(event, 'p_hq')">P hq</button>
-        </div>
+    </div>
     </header>
 
     <main>
+        <div class="tab">
+            <button class="tablinks active" onclick="openModel(event, 'model_1_init')">Initial State for A</button>
+            <button class="tablinks" onclick="openModel(event, 'model_1_trans')">Transition Relation for A</button>
+            <button class="tablinks" onclick="openModel(event, 'model_2_init')">Initial State for B</button>
+            <button class="tablinks" onclick="openModel(event, 'model_2_trans')">Transition Relation for B</button>
+            <button class="tablinks" onclick="openModel(event, 'p_hq')">Property</button>
+        </div>
 
         <div class="input-container">
             <textarea id="tabContents" placeholder="Type or paste file contents here, or upload a file..."></textarea>
-            <input type="file" id="fileUpload" onchange="handleFileUpload()">
+            <div class="file-upload-container">
+                <input type="file" id="fileUpload" onchange="handleFileUpload()">
+                <span class="tooltip" onmouseover="showInfo('file-info')" onmouseout="hideInfo('file-info')">?
+                    <div id="file-info" class="info-box">Upload a file or type the contents in the box.</div>
+                </span>
+            </div>
         </div>
 
         <!-- -k input -->
         <div class="form-row">
             <label for="number_k">K:</label>
             <input type="text" id="number_k" name="number_k">
+            <span class="tooltip" onmouseover="showInfo('k-info')" onmouseout="hideInfo('k-info')">?
+                <div id="k-info" class="info-box">Integer depth of the unrolling.</div>
+            </span>
            </div>      
         
         <!-- -F input -->
         <div class="form-row">
             <label for="quantifier_f">F:</label>
             <input type="text" id="quantifier_f" name="quantifier_f">
+            <span class="tooltip" onmouseover="showInfo('f-info')" onmouseout="hideInfo('f-info')">?
+                <div id="f-info" class="info-box">Format of the unrolling: AE, AA, EE, EA, or EAA.</div>
+            </span>
            </div>  
 
         <div class="form-row">
             <label for="semantics">Semantics:</label>
             <select id="semantics" name="semantics">
-                <option value="PES">PES</option>
                 <option value="OPT">OPT</option>
-                <option value="HPES">HPES</option>
-                <option value="HOPT">HOPT</option>
+                <option value="PES">PES</option>
+                <option value="TER_OPT">TER_OPT</option>
+                <option value="TER_PES">TER_PES</option>
             </select>
+            <span class="tooltip" onmouseover="showInfo('sem-info')" onmouseout="hideInfo('sem-info')">?
+                <div id="sem-info" class="info-box">Semantics of the unrolling: optimistic/pessimistic.</div>
+            </span>
            </div> 
 
         <!-- test folder name -->
         <div class="form-row">
             <label for="test_folder">Name of the folder files will be placed in:</label>
             <input type="text" id="test_folder" name="test_folder">
+            <span class="tooltip" onmouseover="showInfo('folder-info')" onmouseout="hideInfo('folder-info')">?
+                <div id="folder-info" class="info-box">A folder will be created and stored under this name on your desktop, including the input files and a HQ.qcir file.</div>
+            </span>
            </div>      
 
         <div class="form-row">
@@ -68,11 +97,22 @@
                 <option value="example2">Example 2</option>
                 <option value="example3">Example 3</option>
             </select>
+            <span class="tooltip" onmouseover="showInfo('example-info')" onmouseout="hideInfo('example-info')">?
+                <div id="example-info" class="info-box">Or try one of our examples!</div>
+            </span>
         </div>   
 
         <button id="runButton">Run</button>
         <!-- <button id="saveButton">Save</button> -->
         <button id="clearButton">Clear</button>
+        <button id="helpButton">Help</button>
+        <!-- Modal structure -->
+        <div id="helpModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <p>Help Message.</p>
+            </div>
+        </div>
         <div class="output-container">
             <div id="output" class="terminal"></div>
         </div>
@@ -80,9 +120,35 @@
     </main>
 
     <script>
+            function displayInitialPrompt() {
+                const outputBox = document.getElementById('output');
+                const prompt = document.createElement('div');
+                prompt.innerHTML = '<span class="prompt">HyperQB$</span> Welcome!';
+                outputBox.appendChild(prompt);
+            }
+
+            function appendToOutput(message) {
+                const outputBox = document.getElementById('output');
+                const prompt = document.createElement('div');
+                prompt.innerHTML = `<span class="prompt">HyperQB$</span> ${message}`;
+                outputBox.appendChild(prompt);
+                outputBox.scrollTop = outputBox.scrollHeight;
+            }
+
+            function showInfo(infoId) {
+                const infoBox = document.getElementById(infoId);
+                infoBox.classList.add('visible');
+            }
+            // Function to hide info
+            function hideInfo(infoId) {
+                const infoBox = document.getElementById(infoId);
+                infoBox.classList.remove('visible');
+            }
+
 
             document.getElementById('runButton').addEventListener('click', async () => {
-                document.getElementById('output').innerText = '';
+                appendToOutput('----------------------------------------');
+                //document.getElementById('output').innerText = '';
                 let currentTabName = getCurrentTabName();
                 if (currentTabName) {
                     tabContents[currentTabName] = document.getElementById('tabContents').value;
@@ -113,10 +179,12 @@
 
                 if (response.error) {
                     console.error(`Error: ${response.error}`);
+                    appendToOutput(`Error: ${response.error}`);
                 } 
                 else {
                     console.log(`Result: ${response.result}`);
-                    document.getElementById('output').innerText = response.result;
+                    appendToOutput(response.result);
+                    //document.getElementById('output').innerText = response.result;
                 }
         });
 
@@ -129,6 +197,7 @@
             if (firstTabButton) {
                 firstTabButton.click();
             }
+            displayInitialPrompt();
         });
 
         const examples = {
@@ -241,7 +310,7 @@
             document.getElementById('tabContents').value = tabContents[currentTabName];
             
             //Clear result
-            document.getElementById('output').innerText = '';
+            //document.getElementById('output').innerText = '';
         }  
 
         // Event listener for Clear Current Case button
@@ -289,9 +358,29 @@
         function getCurrentTabName() {
             let activeTab = document.querySelector('.tablinks.active');
             if (activeTab) {
-                return activeTab.textContent.trim().replace(/\s+/g, '_').toLowerCase();
+                const tab_name = activeTab.textContent.trim().replace(/\s+/g, '_').toLowerCase();
+                if (tab_name == "initial_state_for_a") {
+                    return "model_1_init";
+                }
+                else if (tab_name == "initial_state_for_b") {
+                    return "model_2_init";
+                }
+                else if (tab_name == "transition_relation_for_a") {
+                    return "model_1_trans";
+                }
+                else if (tab_name == "transition_relation_for_b") {
+                    return "model_2_trans";
+                }
+                else if (tab_name == "property") {
+                    return "p_hq";
+                }
+                else {
+                    return null;
+                }
             }
-            return null; // Return null if no active tab found (though ideally should always have an active tab)
+        else {
+            return null;
+        }
         }
 
         // Function to handle file upload
@@ -312,6 +401,20 @@
                 reader.readAsText(file);
             }
         }
+
+        document.getElementById('helpButton').addEventListener('click', function() {
+            document.getElementById('helpModal').style.display = 'block';
+        });
+
+        document.querySelector('.close-button').addEventListener('click', function() {
+            document.getElementById('helpModal').style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target === document.getElementById('helpModal')) {
+                document.getElementById('helpModal').style.display = 'none';
+            }
+        });
 
         // document.getElementById('saveButton').addEventListener('click', function() {
         //     const { fs, path } = window.electron;

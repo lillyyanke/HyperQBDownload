@@ -14,6 +14,37 @@ header {
     align-items: center;
 }
 
+.file-upload-container {
+    position: relative; /* Position relative for positioning the tooltip */
+    display: inline-flex; /* Align items horizontally */
+    align-items: center; /* Center items vertically */
+}
+
+
+.social-icons {
+    margin-top: 10px;
+}
+
+.social-icon {
+    margin: 0 10px;
+}
+
+.social-icon-img {
+    width: 24px; /* Adjust size as needed */
+    height: 24px; /* Adjust size as needed */
+    vertical-align: middle;
+    filter: brightness(0) invert(1); /* Optional: adjust colors */
+}
+
+.social-icon-img:hover {
+    filter: brightness(0.8) invert(0.8); /* Optional: hover effect */
+}
+
+header a img {
+    width: 24px; /* Adjust size as needed */
+    height: 24px; /* Adjust size as needed */
+}
+
 header h1 {
     margin: 0;
     font-size: 24px;
@@ -24,41 +55,53 @@ a{
     text-decoration: none;
 }
 
-/* Style the tabw */
 .tab {
-    /* overflow: hidden;
-    border: 1px solid #ccc;
-    background-color: #f1f1f1; */
-
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
     display: flex;
-
+    align-items: center;
+    margin-top: 0;
+    padding: 0;
+    position: relative;
+    z-index: 1;
   }
   
   /* Style the buttons that are used to open the tab content */
   .tab button {
-    float: left;
+    display:flex;
     cursor: pointer;
-    padding: 14px 16px;
-    transition: 0.3s;
-
     padding: 10px 20px;
-    border-radius: 5px 5px 0 0;
-    margin-right: 10px;
-    background-color: #007bff;
+    background-color: #f0f0f0;
+    color: #007bff;
+    font-size: 16px;
+    transition: background-color 0.3s, color 0.3s;
+    box-shadow: none;
+    margin: 0 5px; /* Space between tabs */
+    box-shadow: none; /* Ensure no shadow */
   }
+
+  .tab button.active {
+    color: #535a62;
+    background-color: white;
+
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    z-index: 1; /* Ensure the active tab is above others */
+    border-bottom: none; /* Remove bottom border */
+    margin-bottom: -3px;
+}
   
   /* Change background color of buttons on hover */
   .tab button:hover {
-    background-color: rgba(25, 52, 81, 0.699);
+    /* background-color: rgba(25, 52, 81, 0.699); */
+    /* background-color: #007bff; */
+    color: #535a62;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
   /* Create an active/current tablink class */
-  .tab button.active {
+  /* .tab button.active {
     background-color: #0056b3;
-  }
+  } */
   
   /* Style the tab content */
   .tabcontent {
@@ -75,6 +118,7 @@ main {
 
 .input-container {
     margin-bottom: 20px;
+    position: relative
 }
 
 textarea {
@@ -83,8 +127,9 @@ textarea {
     padding: 10px;
     font-size: 14px;
     border: 1px solid #ccc;
-    border-radius: 5px;
-    resize: vertical;
+    border-radius: 10px;
+    resize: both;
+    outline: none;
 }
 
 input[type="file"] {
@@ -118,6 +163,14 @@ button {
     padding: 10px;
 }
 
+.prompt {
+    color: #0ff
+}
+
+.dashes {
+    color: #fff;
+}
+
 
 .form-row {
     display: flex;
@@ -129,4 +182,95 @@ button {
 .form-row label {
     /* min-width: 50px;  */
     flex-shrink: 0; 
+}
+
+.question-mark {
+    cursor: pointer;
+    margin-left: 5px;
+    color: blue;
+}
+.info-box {
+    display: none;
+    position: absolute;
+    background-color: #333;
+    color: white;
+    border-radius: 5px;
+    padding: 10px;
+    z-index: 1;
+    left: 125%; /* Position to the right */
+    bottom: 50%;
+    transform: translateY(50%);
+    transition: opacity 0.3s;
+    min-width: 200px; /* Set a minimum width for horizontal shape */
+    max-width: 300px; /* Optionally limit maximum width */
+}
+.info-box.visible {
+    display: block;
+}
+
+.form-row .tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    margin-left: 5px;
+}
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 500px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 5px;
+    position: relative;
+    display:inline-block; 
+    z-index: 1;
+    left: 125%; /* Position to the right */
+    bottom: 50%;
+    transform: translateY(50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.form-row .tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Modal background */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal content */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* Close button */
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
 }
