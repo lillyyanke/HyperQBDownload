@@ -1,6 +1,6 @@
 {
   "name": "hyperqb-app",
-  "version": "2.0.2",
+  "version": "2.0.7",
   "main": "main.js",
   "description": "HyperQB Downloadable Edition",
   "author": "Lilly Yanke! <yankelil@msu.edu>",
@@ -21,6 +21,7 @@
       "main.js",
       "bin/genqbf",
       "bin/quabs",
+      "bin/HyperRust",
       "test/*",
       "test2/*",
       "test3/*",
@@ -29,7 +30,11 @@
       "package.json",
       "preload.js",
       "dist/add2",
-      "assets/*"
+      "assets/*",
+      "HyperRust/**",
+      "nusmv/*",
+      "outputs/*",
+      "mini/*"
     ],
     "mac": {
       "category": "public.app-category.utilities",

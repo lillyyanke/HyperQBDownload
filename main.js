@@ -68,8 +68,9 @@ function extractBinary(bin) {
 ipcMain.handle('process-files', async (event, data) => {
     try {
         const {
-            model_1_init, model_1_trans, model_2_init, model_2_trans, p_hq,
-            number_k, quantifier_f, semantics, test_folder
+            model_a, model_b, p_hq, number_k, semantics, test_folder
+            // model_1_init, model_1_trans, model_2_init, model_2_trans, p_hq,
+            // number_k, quantifier_f, semantics, test_folder
         } = data;
         const desktopDirectory = app.getPath('desktop');
         const outputFolder = test_folder;
@@ -93,15 +94,22 @@ ipcMain.handle('process-files', async (event, data) => {
         }
 
         // Process files
-        const I1 = processFile(outputFolder, 'I_1.bool', model_1_init);
-        const I2 = processFile(outputFolder, 'I_2.bool', model_2_init);
-        const R1 = processFile(outputFolder, 'R_1.bool', model_1_trans);
-        const R2 = processFile(outputFolder, 'R_2.bool', model_2_trans);
-        const P = processFile(outputFolder, 'P.hq', p_hq);
+        // const I1 = processFile(outputFolder, 'I_1.bool', model_1_init);
+        // const I2 = processFile(outputFolder, 'I_2.bool', model_2_init);
+        // const R1 = processFile(outputFolder, 'R_1.bool', model_1_trans);
+        // const R2 = processFile(outputFolder, 'R_2.bool', model_2_trans);
+        // const P = processFile(outputFolder, 'P.hq', p_hq);
+
+
+        const modelA = processFile(outputFolder, 'model_a.smv', model_a);
+        const modelB = processFile(outputFolder, 'model_b.smv', model_b);
+        const P = processFile(outputFolder, 'property.hq', p_hq);
+        
 
         // Extract binaries
         const genBinPath = extractBinary('genqbf');
         const quabsBinPath = extractBinary('quabs');
+        const hyperRustBinPath = extractBinary('HyperRust');
 
         try {
             fs.accessSync(genBinPath, fs.constants.X_OK);
@@ -115,13 +123,38 @@ ipcMain.handle('process-files', async (event, data) => {
         } catch (err) {
             throw new Error(`No execute permission for: ${quabsBinPath}`);
         }
-        const commandGen = `${genBinPath} -I ${I1} -R ${R1} -J ${I2} -S ${R2} -P ${P} -k ${number_k} -F ${quantifier_f} -f qcir -o ${outputFile} -sem ${semantics} -n --fast -new NN`;
-        console.log(`Command Gen: ${commandGen}`);
-        let genOutput = await execCommand(commandGen);
-        console.log(`GenOutput: ${genOutput}`);
-        const commandQuabs = `${quabsBinPath} ${outputFile}`;
+        try {
+            fs.accessSync(hyperRustBinPath, fs.constants.X_OK);
+            console.log("permission fine");
+        } catch (err) {
+            throw new Error(`No execute permission for: ${hyperRustBinPath}`);
+        }
+        //const commandGen = `${genBinPath} -I ${I1} -R ${R1} -J ${I2} -S ${R2} -P ${P} -k ${number_k} -F ${quantifier_f} -f qcir -o ${outputFile} -sem ${semantics} -n --fast -new NN`;
+        //console.log(`Command Gen: ${commandGen}`);
+        //let genOutput = await execCommand(commandGen);
+        //console.log(`GenOutput: ${genOutput}`);
+
+
+
+        // HYPER RUST
+        // const miniPath = path.join(__dirname, 'HyperRust', "mini", 'mini.smv');
+        // const miniHQPath = path.join(__dirname, 'HyperRust', "mini", 'mini.hq');
+        const commandHyperRust = `${hyperRustBinPath} ${modelA} ${modelB} ${P}`;
+        console.log(`CommandHyperRust: ${commandHyperRust}`);
+        let hyperOutput = await execCommand (commandHyperRust);
+        console.log(`Hyper Output: ${hyperOutput}`);
+
+        const outputPath = path.join(__dirname, 'outputs', "HQ.qcir");
+        console.log(outputPath);
+        fs.copyFileSync(outputPath, outputFile);
+        const commandQuabs = `${quabsBinPath} ${outputFile}`; // Replace with outputFile to go back to genqbf
         console.log(`Executing second command: ${commandQuabs}`);
         let quabsOutput = await execCommand(commandQuabs);
+
+        // Write the result to a file
+        const resultFilePath = path.join(desktopDirectory, outputFolder, 'result.txt');
+        fs.writeFileSync(resultFilePath, quabsOutput);
+
         return { result: quabsOutput};
     } catch (error) {
         console.error(`Error: ${error.message}`);

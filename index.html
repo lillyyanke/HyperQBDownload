@@ -32,10 +32,14 @@
 
     <main>
         <div class="tab">
-            <button class="tablinks active" onclick="openModel(event, 'model_1_init')">Initial State for A</button>
+            <!-- <button class="tablinks active" onclick="openModel(event, 'model_1_init')">Initial State for A</button>
             <button class="tablinks" onclick="openModel(event, 'model_1_trans')">Transition Relation for A</button>
             <button class="tablinks" onclick="openModel(event, 'model_2_init')">Initial State for B</button>
             <button class="tablinks" onclick="openModel(event, 'model_2_trans')">Transition Relation for B</button>
+            <button class="tablinks" onclick="openModel(event, 'p_hq')">Property</button> -->
+
+            <button class="tablinks active" onclick="openModel(event, 'model_a')">Model A</button>
+            <button class="tablinks" onclick="openModel(event, 'model_b')">Model B</button>
             <button class="tablinks" onclick="openModel(event, 'p_hq')">Property</button>
         </div>
 
@@ -59,13 +63,13 @@
            </div>      
         
         <!-- -F input -->
-        <div class="form-row">
+        <!-- <div class="form-row">
             <label for="quantifier_f">F:</label>
             <input type="text" id="quantifier_f" name="quantifier_f">
             <span class="tooltip" onmouseover="showInfo('f-info')" onmouseout="hideInfo('f-info')">?
                 <div id="f-info" class="info-box">Format of the unrolling: AE, AA, EE, EA, or EAA.</div>
             </span>
-           </div>  
+           </div>   -->
 
         <div class="form-row">
             <label for="semantics">Semantics:</label>
@@ -94,8 +98,8 @@
             <select id="examples" name="examples">
                 <option value="" disabled selected>Select an example</option>
                 <option value="example1">Example 1</option>
-                <option value="example2">Example 2</option>
-                <option value="example3">Example 3</option>
+                <!-- <option value="example2">Example 2</option>
+                <option value="example3">Example 3</option> -->
             </select>
             <span class="tooltip" onmouseover="showInfo('example-info')" onmouseout="hideInfo('example-info')">?
                 <div id="example-info" class="info-box">Or try one of our examples!</div>
@@ -162,12 +166,12 @@
                 else {
                     tabContents['number_k'] = 3;
                 }
-                if (document.getElementById('quantifier_f').value) {
-                    tabContents['quantifier_f'] = document.getElementById('quantifier_f').value;
-                }
-                else {
-                    tabContents['quantifier_f'] = 'AA';
-                }
+                // if (document.getElementById('quantifier_f').value) {
+                //     tabContents['quantifier_f'] = document.getElementById('quantifier_f').value;
+                // }
+                // else {
+                //     tabContents['quantifier_f'] = 'AA';
+                // }
                 if (document.getElementById('semantics').value) {
                     tabContents['semantics'] = document.getElementById('semantics').value;
                 }
@@ -202,15 +206,17 @@
 
         const examples = {
             example1: {
-                model_1_init: 'I_1.bool',
-                model_1_trans: 'R_1.bool',
-                model_2_init: 'I_2.bool',
-                model_2_trans: 'R_2.bool',
-                p_hq: 'P.hq',
+                model_a: "mini.smv",
+                model_b: "mini.smv",
+                // model_1_init: 'I_1.bool',
+                // model_1_trans: 'R_1.bool',
+                // model_2_init: 'I_2.bool',
+                // model_2_trans: 'R_2.bool',
+                p_hq: 'mini.hq',
                 number_k: '3',
-                quantifier_f: 'AA',
+                //quantifier_f: 'AA',
                 semantics:'PES',
-                test_folder:'test'
+                test_folder:'mini'
             },
             example2: {
                 model_1_init: 'I_1.bool',
@@ -219,7 +225,7 @@
                 model_2_trans: 'R_2.bool',
                 p_hq: 'P.hq',
                 number_k: '3',
-                quantifier_f: 'AA',
+                //quantifier_f: 'AA',
                 semantics:'OPT',
                 test_folder:'test2'
             },
@@ -230,7 +236,7 @@
                 model_2_trans: 'R_2.bool',
                 p_hq: 'P.hq',
                 number_k: '3',
-                quantifier_f: 'AA',
+                //quantifier_f: 'AA',
                 semantics:'PES',
                 test_folder:'test3'
             }
@@ -246,15 +252,17 @@
                 tabContents['test_folder'] = exampleData.test_folder;
                 document.getElementById('number_k').value = exampleData.number_k;
                 tabContents['number_k'] = exampleData.number_k;
-                document.getElementById('quantifier_f').value = exampleData.quantifier_f;
-                tabContents['quantifier_f'] = exampleData.quantifier_f;
+                // document.getElementById('quantifier_f').value = exampleData.quantifier_f;
+                // tabContents['quantifier_f'] = exampleData.quantifier_f;
                 document.getElementById('semantics').value = exampleData.semantics;
                 tabContents['semantics'] = exampleData.semantics;
 
-                loadFileContents('model_1_init', exampleData.model_1_init, exampleData.test_folder);
-                loadFileContents('model_1_trans', exampleData.model_1_trans, exampleData.test_folder);
-                loadFileContents('model_2_init', exampleData.model_2_init, exampleData.test_folder);
-                loadFileContents('model_2_trans', exampleData.model_2_trans, exampleData.test_folder);
+                loadFileContents('model_a', exampleData.model_a, exampleData.test_folder);
+                loadFileContents('model_b', exampleData.model_b, exampleData.test_folder);
+                // loadFileContents('model_1_init', exampleData.model_1_init, exampleData.test_folder);
+                // loadFileContents('model_1_trans', exampleData.model_1_trans, exampleData.test_folder);
+                // loadFileContents('model_2_init', exampleData.model_2_init, exampleData.test_folder);
+                // loadFileContents('model_2_trans', exampleData.model_2_trans, exampleData.test_folder);
                 loadFileContents('p_hq', exampleData.p_hq, exampleData.test_folder);
                 let currentTabName = getCurrentTabName();
                 document.getElementById('tabContents').value = tabContents[currentTabName];
@@ -291,19 +299,21 @@
         function clearInterface() {
             // Clear input boxes
             tabContents['test_folder'] = '';
-            tabContents['model_1_init'] ='';
-            tabContents['model_1_trans'] ='';
-            tabContents['model_2_init'] ='';
-            tabContents['model_2_trans'] ='';
+            tabContents['model_a'] ='';
+            tabContents['model_b'] ='';
+            // tabContents['model_1_init'] ='';
+            // tabContents['model_1_trans'] ='';
+            // tabContents['model_2_init'] ='';
+            // tabContents['model_2_trans'] ='';
             tabContents['p_hq'] ='';
             tabContents['number_k'] ='';
-            tabContents['quantifier_f'] ='';
+            // tabContents['quantifier_f'] ='';
             tabContents['semantics'] ='';
             console.log("Current tab contents:", tabContents);
 
             // Clear input boxes
             document.getElementById('number_k').value = '';
-            document.getElementById('quantifier_f').value = '';
+            // document.getElementById('quantifier_f').value = '';
             document.getElementById('semantics').value = '';
             document.getElementById('test_folder').value = '';
             let currentTabName = getCurrentTabName();
@@ -321,13 +331,15 @@
 
         // Store content for each tab
         let tabContents = {
-            model_1_init: '',
-            model_1_trans: '',
-            model_2_init: '',
-            model_2_trans: '',
+            // model_1_init: '',
+            // model_1_trans: '',
+            // model_2_init: '',
+            // model_2_trans: '',
+            model_a: '',
+            model_b: '',
             p_hq: '',
             number_k: '',
-            quantifier_f: '',
+            // quantifier_f: '',
             semantics:'',
             test_folder:''
         };
@@ -359,18 +371,24 @@
             let activeTab = document.querySelector('.tablinks.active');
             if (activeTab) {
                 const tab_name = activeTab.textContent.trim().replace(/\s+/g, '_').toLowerCase();
-                if (tab_name == "initial_state_for_a") {
-                    return "model_1_init";
+                if (tab_name == "model_a") {
+                    return "model_a";
                 }
-                else if (tab_name == "initial_state_for_b") {
-                    return "model_2_init";
+                else if (tab_name == "model_b") {
+                    return "model_b";
                 }
-                else if (tab_name == "transition_relation_for_a") {
-                    return "model_1_trans";
-                }
-                else if (tab_name == "transition_relation_for_b") {
-                    return "model_2_trans";
-                }
+                // if (tab_name == "initial_state_for_a") {
+                //     return "model_1_init";
+                // }
+                // else if (tab_name == "initial_state_for_b") {
+                //     return "model_2_init";
+                // }
+                // else if (tab_name == "transition_relation_for_a") {
+                //     return "model_1_trans";
+                // }
+                // else if (tab_name == "transition_relation_for_b") {
+                //     return "model_2_trans";
+                // }
                 else if (tab_name == "property") {
                     return "p_hq";
                 }
