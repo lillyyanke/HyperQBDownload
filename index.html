@@ -31,13 +31,15 @@
     </header>
 
     <main>
-        <div class="tab">
+        <div class="tab", id="tabContainer">
+            <!-- genqbf version -->
             <!-- <button class="tablinks active" onclick="openModel(event, 'model_1_init')">Initial State for A</button>
             <button class="tablinks" onclick="openModel(event, 'model_1_trans')">Transition Relation for A</button>
             <button class="tablinks" onclick="openModel(event, 'model_2_init')">Initial State for B</button>
             <button class="tablinks" onclick="openModel(event, 'model_2_trans')">Transition Relation for B</button>
             <button class="tablinks" onclick="openModel(event, 'p_hq')">Property</button> -->
 
+            <!-- HyperRust version -->
             <button class="tablinks active" onclick="openModel(event, 'model_a')">Model A</button>
             <button class="tablinks" onclick="openModel(event, 'model_b')">Model B</button>
             <button class="tablinks" onclick="openModel(event, 'p_hq')">Property</button>
@@ -62,6 +64,7 @@
             </span>
            </div>      
         
+        <!-- genqbf version -->
         <!-- -F input -->
         <!-- <div class="form-row">
             <label for="quantifier_f">F:</label>
@@ -109,8 +112,9 @@
         <button id="runButton">Run</button>
         <!-- <button id="saveButton">Save</button> -->
         <button id="clearButton">Clear</button>
+        <button id="addModel">Add Model</button>
         <button id="helpButton">Help</button>
-        <!-- Modal structure -->
+        <!-- Help button for more information -->
         <div id="helpModal" class="modal">
             <div class="modal-content">
                 <span class="close-button">&times;</span>
@@ -124,35 +128,76 @@
     </main>
 
     <script>
-            function displayInitialPrompt() {
-                const outputBox = document.getElementById('output');
-                const prompt = document.createElement('div');
-                prompt.innerHTML = '<span class="prompt">HyperQB$</span> Welcome!';
-                outputBox.appendChild(prompt);
-            }
 
-            function appendToOutput(message) {
-                const outputBox = document.getElementById('output');
-                const prompt = document.createElement('div');
-                prompt.innerHTML = `<span class="prompt">HyperQB$</span> ${message}`;
-                outputBox.appendChild(prompt);
-                outputBox.scrollTop = outputBox.scrollHeight;
-            }
+        let model_index = 2; //Starting index after model_b
+        let model_tabs = ['model_a', 'model_b'];
+        let alphabet_index = 2; //starting index from c
 
-            function showInfo(infoId) {
-                const infoBox = document.getElementById(infoId);
-                infoBox.classList.add('visible');
+        // Adds a model tab and names it alphabetically, keep track of the models in a list
+        function addModelTab() {
+            const tab_container = document.getElementById('tabContainer');
+            const new_tab_name = `model_${String.fromCharCode(97 + alphabet_index)}`; 
+            alphabet_index++; 
+            console.log("new_tab_name", new_tab_name);
+            const new_tab_button = document.createElement('button'); 
+            new_tab_button.className = 'tablinks';
+            new_tab_button.textContent = `Model ${new_tab_name.split('_')[1].toUpperCase()}`;
+            new_tab_button.onclick = function(event) { openModel(event, new_tab_name); }; // Append new tab button to the container 
+            const property_tab = Array.from(tab_container.children).find( // Inserts the model tabs before the property tab
+                tab => tab.textContent.trim() === 'Property'
+            );
+            if (property_tab) {
+                tab_container.insertBefore(new_tab_button, property_tab);
+            } else {
+                tab_container.appendChild(new_tab_button);
             }
-            // Function to hide info
-            function hideInfo(infoId) {
-                const infoBox = document.getElementById(infoId);
-                infoBox.classList.remove('visible');
-            }
+            tabContents[new_tab_name] = ''; 
+            model_tabs.push(new_tab_name);
+            openModel({ currentTarget: new_tab_button }, new_tab_name);
+            console.log("new_tab_button", new_tab_button);
+            console.log(tabContents);
+
+        }
+
+        // Event listener for Add Model button
+        document.getElementById('addModel').addEventListener('click', function(event) {
+            event.preventDefault();
+            addModelTab();
+        });
 
 
-            document.getElementById('runButton').addEventListener('click', async () => {
+        // Displays HyperQB$ in terminal before each lines
+        function displayInitialPrompt() {
+            const outputBox = document.getElementById('output');
+            const prompt = document.createElement('div');
+            prompt.innerHTML = '<span class="prompt">HyperQB$</span> Welcome!';
+            outputBox.appendChild(prompt);
+        }
+
+        // Displays message in terminal
+        function appendToOutput(message) {
+            const outputBox = document.getElementById('output');
+            const prompt = document.createElement('div');
+            prompt.innerHTML = `<span class="prompt">HyperQB$</span> ${message}`;
+            outputBox.appendChild(prompt);
+            outputBox.scrollTop = outputBox.scrollHeight;
+        }
+
+        // Function for tool tip buttons
+        function showInfo(infoId) {
+            const infoBox = document.getElementById(infoId);
+            infoBox.classList.add('visible');
+        }
+
+        // Function to hide info for tool tip buttons
+        function hideInfo(infoId) {
+            const infoBox = document.getElementById(infoId);
+            infoBox.classList.remove('visible');
+        }
+
+        // Event Listener for run button
+        document.getElementById('runButton').addEventListener('click', async () => {
                 appendToOutput('----------------------------------------');
-                //document.getElementById('output').innerText = '';
                 let currentTabName = getCurrentTabName();
                 if (currentTabName) {
                     tabContents[currentTabName] = document.getElementById('tabContents').value;
@@ -164,7 +209,7 @@
                     tabContents['number_k'] = document.getElementById('number_k').value;
                 }
                 else {
-                    tabContents['number_k'] = 3;
+                    tabContents['number_k'] = 3; // Default value for k
                 }
                 // if (document.getElementById('quantifier_f').value) {
                 //     tabContents['quantifier_f'] = document.getElementById('quantifier_f').value;
@@ -176,19 +221,17 @@
                     tabContents['semantics'] = document.getElementById('semantics').value;
                 }
                 else {
-                    tabContents['semantics'] = 'PES';
+                    tabContents['semantics'] = 'PES'; // Default value for semantics
                 }
                 console.log(tabContents);
                 const response = await window.electron.ipcRenderer.invoke('process-files', tabContents);
-
                 if (response.error) {
                     console.error(`Error: ${response.error}`);
                     appendToOutput(`Error: ${response.error}`);
                 } 
                 else {
                     console.log(`Result: ${response.result}`);
-                    appendToOutput(response.result);
-                    //document.getElementById('output').innerText = response.result;
+                    appendToOutput(response.result); // Display result in terminal
                 }
         });
 
@@ -242,8 +285,8 @@
             }
         };
 
+        // Event Listener for examples selection
         document.getElementById('examples').addEventListener('change', function(event) {
-            //let currentTabName = getCurrentTabName();
             const selectedExample = event.target.value;
             const exampleData = examples[selectedExample];
             if (exampleData) {
@@ -257,8 +300,8 @@
                 document.getElementById('semantics').value = exampleData.semantics;
                 tabContents['semantics'] = exampleData.semantics;
 
-                loadFileContents('model_a', exampleData.model_a, exampleData.test_folder);
-                loadFileContents('model_b', exampleData.model_b, exampleData.test_folder);
+                loadFileContents('model_a', exampleData.model_a, exampleData.test_folder); // Load the contents 
+                loadFileContents('model_b', exampleData.model_b, exampleData.test_folder); // Load the contents
                 // loadFileContents('model_1_init', exampleData.model_1_init, exampleData.test_folder);
                 // loadFileContents('model_1_trans', exampleData.model_1_trans, exampleData.test_folder);
                 // loadFileContents('model_2_init', exampleData.model_2_init, exampleData.test_folder);
@@ -299,12 +342,12 @@
         function clearInterface() {
             // Clear input boxes
             tabContents['test_folder'] = '';
-            tabContents['model_a'] ='';
-            tabContents['model_b'] ='';
-            // tabContents['model_1_init'] ='';
-            // tabContents['model_1_trans'] ='';
-            // tabContents['model_2_init'] ='';
-            // tabContents['model_2_trans'] ='';
+            // Clear the tabContents object
+            for (let key in tabContents) {
+                if (tabContents.hasOwnProperty(key)) {
+                    tabContents[key] = '';
+                }
+            }
             tabContents['p_hq'] ='';
             tabContents['number_k'] ='';
             // tabContents['quantifier_f'] ='';
@@ -318,9 +361,6 @@
             document.getElementById('test_folder').value = '';
             let currentTabName = getCurrentTabName();
             document.getElementById('tabContents').value = tabContents[currentTabName];
-            
-            //Clear result
-            //document.getElementById('output').innerText = '';
         }  
 
         // Event listener for Clear Current Case button
@@ -328,6 +368,7 @@
             event.preventDefault();
             clearInterface();
         });
+
 
         // Store content for each tab
         let tabContents = {
@@ -346,24 +387,17 @@
 
         function openModel(evt, modelName) {
             let currentTabName = getCurrentTabName();
-            //console.log("help",currentTabName);
-            //console.log(tabContents);
             if (currentTabName) {
                 tabContents[currentTabName] = document.getElementById('tabContents').value;
             }
-
             let tablinks = document.getElementsByClassName("tablinks");
             for (let i = 0; i < tablinks.length; i++) {
                 tablinks[i].classList.remove("active");
             }
-
             evt.currentTarget.classList.add("active");
-
             document.getElementById('tabContents').value = tabContents[modelName];
             document.getElementById('fileUpload').value = '';
             document.getElementById('tabContents').focus();
-            //console.log(tabContents);
-
         }
 
         // Function to get the name of the currently active tab
@@ -371,24 +405,10 @@
             let activeTab = document.querySelector('.tablinks.active');
             if (activeTab) {
                 const tab_name = activeTab.textContent.trim().replace(/\s+/g, '_').toLowerCase();
-                if (tab_name == "model_a") {
-                    return "model_a";
-                }
-                else if (tab_name == "model_b") {
-                    return "model_b";
-                }
-                // if (tab_name == "initial_state_for_a") {
-                //     return "model_1_init";
-                // }
-                // else if (tab_name == "initial_state_for_b") {
-                //     return "model_2_init";
-                // }
-                // else if (tab_name == "transition_relation_for_a") {
-                //     return "model_1_trans";
-                // }
-                // else if (tab_name == "transition_relation_for_b") {
-                //     return "model_2_trans";
-                // }
+                if (model_tabs.includes(tab_name)) {
+                    console.log("Currently active tab", tab_name);
+                    return tab_name;
+                }    
                 else if (tab_name == "property") {
                     return "p_hq";
                 }
