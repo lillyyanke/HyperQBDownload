@@ -1,0 +1,24 @@
+MODULE main
+ VAR
+    a: boolean;
+    num[0][2]: 0..3;
+ ASSIGN
+    -- Initial Conditions
+    init(a):= TRUE;
+    init(num[0][2]) := 1;
+
+    -- Transition Relations
+    next(a) :=
+      case
+        (a): {FALSE, TRUE};
+        TRUE: a;
+      esac;
+
+    next(num[0][2]) :=
+      case
+        (num[0][2]=3): 3;
+        TRUE: num[0][2]+1;
+      esac; 
+
+  -- DEFINE
+  --   terminate := (a=TRUE);

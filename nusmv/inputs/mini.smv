@@ -1,0 +1,13 @@
+
+MODULE main
+ VAR
+    a: boolean;
+ ASSIGN
+
+    init(a):= TRUE;
+
+    next(a) :=
+      case
+        (a): {FALSE, TRUE};
+        TRUE: a;
+      esac;

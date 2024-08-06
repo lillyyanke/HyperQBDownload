@@ -1,0 +1,5 @@
+read_model -i nusmv/inputs/mini.smv;
+flatten_hierarchy;
+encode_variables;
+build_model;
+print_fair_transitions -v -f smv -o nusmv/outputs/out.smv;

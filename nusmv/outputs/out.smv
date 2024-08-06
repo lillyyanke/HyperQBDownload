@@ -1,0 +1,9 @@
+  ------- Trans:    1 (Curr State ID: 1, Next State ID: 1) ------
+  a = TRUE
+  next(a) = TRUE
+  ------- Trans:    2 (Curr State ID: 1, Next State ID: 2) ------
+  a = TRUE
+  next(a) = FALSE
+  ------- Trans:    3 (Curr State ID: 2, Next State ID: 2) ------
+  a = FALSE
+  next(a) = FALSE
