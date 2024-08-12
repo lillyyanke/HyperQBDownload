@@ -94,14 +94,14 @@ ipcMain.handle('process-files', async (event, data) => {
         });
         }
 
-        // Process files
+        // Process files for genqbf 
         // const I1 = processFile(outputFolder, 'I_1.bool', model_1_init);
         // const I2 = processFile(outputFolder, 'I_2.bool', model_2_init);
         // const R1 = processFile(outputFolder, 'R_1.bool', model_1_trans);
         // const R2 = processFile(outputFolder, 'R_2.bool', model_2_trans);
         // const P = processFile(outputFolder, 'P.hq', p_hq);
-        // const modelA = processFile(outputFolder, 'model_a.smv', model_a);
-        // const modelB = processFile(outputFolder, 'model_b.smv', model_b);
+
+        // Process files for HyperRust
         let processedFiles = [];
         models.forEach((model, index) => {
             // model is an object like {model_a: "mini.smv"}
@@ -109,14 +109,10 @@ ipcMain.handle('process-files', async (event, data) => {
                 if (model.hasOwnProperty(key)) {
                     console.log(`${key}: ${model[key]}`);
                     processedFiles.push(processFile(outputFolder, key, model[key]));
-                    //loadFileContents(index, key, model[key], exampleData.test_folder, true); // Load the contents 
-                    // You can do something with each key-value pair here
                 }
             }
         });
-        //console.log("Models",models);
-        //console.log("models", models.map(model => console.log(outputFolder, model.name, model.content)));
-        //const processedFiles = models.map(model => processFile(outputFolder, model.name, model.content));
+
         console.log("processedFiles", processedFiles);
         const P = processFile(outputFolder, 'p_hq', p_hq);
         

@@ -169,10 +169,16 @@
         // Function to update tabContents with current tab's content
         function updateTabContents() {
             let currentTabName = getCurrentTabName();
+            console.log("currentTabName", currentTabName);
             if (currentTabName) {
-                let model = tabContents.models.find(model => model.name === currentTabName);
+                let model = tabContents.models.find(m => Object.keys(m)[0] === currentTabName);
+                console.log("tabContents.model", tabContents.model);
                 if (model) {
-                    model.content = document.getElementById('tabContents').value;
+                    model[currentTabName] = document.getElementById('tabContents').value;
+                    console.log("model.content", model.content);
+                }
+                else {
+                    tabContents.p_hq = document.getElementById('tabContents').value;
                 }
             }
         }
@@ -344,6 +350,7 @@
 
         // Helper function to get content for the current tab
         function getCurrentTabContent(tabName) {
+            console.log("TAB NAME", tabName);
             for (const model of tabContents.models) {
                 if (model.hasOwnProperty(tabName)) {
                     return model[tabName];
@@ -388,16 +395,18 @@
         function clearInterface() {
             // Clear input boxes
             tabContents['test_folder'] = '';
-            // Clear the tabContents object
-            for (let key in tabContents) {
-                if (key === 'models') {
-                    // Clear each model's content
-                    console.log(tabContents[key]);
-                } else {
-                    // Clear other properties
-                    tabContents[key] = '';
+
+            tabContents.models.forEach((model, index) => {
+            // model is an object like {model_a: "mini.smv"}
+            for (const key in model) {
+                if (model.hasOwnProperty(key)) {
+                    console.log(`${key}: ${model[key]}`);
+                    model[key] = '';
+                    console.log(model[key]);
                 }
             }
+            });
+
             tabContents['p_hq'] ='';
             tabContents['number_k'] ='';
             // tabContents['quantifier_f'] ='';
@@ -410,7 +419,8 @@
             document.getElementById('semantics').value = '';
             document.getElementById('test_folder').value = '';
             let currentTabName = getCurrentTabName();
-            //document.getElementById('tabContents').value = tabContents[currentTabName];
+            document.getElementById('tabContents').value = '';
+            console.log(tabContents);
         }  
 
         // Event listener for Clear Current Case button
