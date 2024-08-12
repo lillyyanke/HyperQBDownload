@@ -130,7 +130,7 @@
     <script>
 
         let model_index = 2; //Starting index after model_b
-        let model_tabs = ['model_a', 'model_b'];
+        //let model_tabs = ['model_a', 'model_b'];
         let alphabet_index = 2; //starting index from c
 
         // Adds a model tab and names it alphabetically, keep track of the models in a list
@@ -151,8 +151,9 @@
             } else {
                 tab_container.appendChild(new_tab_button);
             }
-            tabContents[new_tab_name] = ''; 
-            model_tabs.push(new_tab_name);
+            //tabContents[new_tab_name] = ''; 
+            //model_tabs.push(new_tab_name);
+            tabContents.models.push({ [new_tab_name]: '' });
             openModel({ currentTarget: new_tab_button }, new_tab_name);
             console.log("new_tab_button", new_tab_button);
             console.log(tabContents);
@@ -164,6 +165,17 @@
             event.preventDefault();
             addModelTab();
         });
+
+        // Function to update tabContents with current tab's content
+        function updateTabContents() {
+            let currentTabName = getCurrentTabName();
+            if (currentTabName) {
+                let model = tabContents.models.find(model => model.name === currentTabName);
+                if (model) {
+                    model.content = document.getElementById('tabContents').value;
+                }
+            }
+        }
 
 
         // Displays HyperQB$ in terminal before each lines
@@ -249,8 +261,10 @@
 
         const examples = {
             example1: {
-                model_a: "mini.smv",
-                model_b: "mini.smv",
+                models: [
+                    {model_a: "mini.smv"}, 
+                    {model_b: "mini.smv"}
+                ],
                 // model_1_init: 'I_1.bool',
                 // model_1_trans: 'R_1.bool',
                 // model_2_init: 'I_2.bool',
@@ -300,22 +314,46 @@
                 document.getElementById('semantics').value = exampleData.semantics;
                 tabContents['semantics'] = exampleData.semantics;
 
-                loadFileContents('model_a', exampleData.model_a, exampleData.test_folder); // Load the contents 
-                loadFileContents('model_b', exampleData.model_b, exampleData.test_folder); // Load the contents
+                console.log("HELP",exampleData.models);
+                // Iterate through the models array
+                exampleData.models.forEach((model, index) => {
+                    // model is an object like {model_a: "mini.smv"}
+                    for (const key in model) {
+                        if (model.hasOwnProperty(key)) {
+                            console.log(`${key}: ${model[key]}`);
+                            loadFileContents(index, key, model[key], exampleData.test_folder, true); // Load the contents 
+                            // You can do something with each key-value pair here
+                        }
+                    }
+                });
+                //loadFileContents('model_a', exampleData.models.model_a, exampleData.test_folder); // Load the contents 
+                //loadFileContents('model_b', exampleData.model_b, exampleData.test_folder); // Load the contents
                 // loadFileContents('model_1_init', exampleData.model_1_init, exampleData.test_folder);
                 // loadFileContents('model_1_trans', exampleData.model_1_trans, exampleData.test_folder);
                 // loadFileContents('model_2_init', exampleData.model_2_init, exampleData.test_folder);
                 // loadFileContents('model_2_trans', exampleData.model_2_trans, exampleData.test_folder);
-                loadFileContents('p_hq', exampleData.p_hq, exampleData.test_folder);
+                loadFileContents(0, 'p_hq', exampleData.p_hq, exampleData.test_folder, false);
                 let currentTabName = getCurrentTabName();
-                document.getElementById('tabContents').value = tabContents[currentTabName];
-                console.log("Currently active tab examples:", currentTabName);
-                console.log("Tabs:", tabContents['model_1_init']);
+                console.log("Hi", currentTabName);
+                console.log("exampleData.p_hq", exampleData.p_hq);
+                //document.getElementById('tabContents').value = getCurrentTabContent(currentTabName);
+                //console.log("Currently active tab examples:", getCurrentTabContent(currentTabName));
+                //console.log("Tabs:", tabContents['model_1_init']);
             }
         });
 
+        // Helper function to get content for the current tab
+        function getCurrentTabContent(tabName) {
+            for (const model of tabContents.models) {
+                if (model.hasOwnProperty(tabName)) {
+                    return model[tabName];
+                }
+            }
+            return null;
+        }
+
         // Function to handle file upload
-        function loadFileContents(tab, file, folder) {
+        function loadFileContents(index, tab, file, folder, model) {
             console.log(folder+'/'+file);
             fetch(folder + '/' + file)
                 .then(response => {
@@ -325,7 +363,15 @@
                     return response.text();
                 })
                 .then(data => {
-                    tabContents[tab] = data;
+                    if (model) {
+                        tabContents.models[index][tab] = data;
+                        //console.log("data", tabContents.p_hq);
+                    }
+                    else {
+                        tabContents.p_hq = data;
+                        console.log("data", tabContents.p_hq);
+                    }
+                    //tabContents.models[index][tab] = data;
                     let currentTabName = getCurrentTabName();
                     if (currentTabName == tab)
                         document.getElementById('tabContents').value = data;
@@ -344,7 +390,11 @@
             tabContents['test_folder'] = '';
             // Clear the tabContents object
             for (let key in tabContents) {
-                if (tabContents.hasOwnProperty(key)) {
+                if (key === 'models') {
+                    // Clear each model's content
+                    console.log(tabContents[key]);
+                } else {
+                    // Clear other properties
                     tabContents[key] = '';
                 }
             }
@@ -360,7 +410,7 @@
             document.getElementById('semantics').value = '';
             document.getElementById('test_folder').value = '';
             let currentTabName = getCurrentTabName();
-            document.getElementById('tabContents').value = tabContents[currentTabName];
+            //document.getElementById('tabContents').value = tabContents[currentTabName];
         }  
 
         // Event listener for Clear Current Case button
@@ -376,8 +426,9 @@
             // model_1_trans: '',
             // model_2_init: '',
             // model_2_trans: '',
-            model_a: '',
-            model_b: '',
+            // model_a: '',
+            // model_b: '',
+            models: [{model_a: ''}, {model_b:''}],
             p_hq: '',
             number_k: '',
             // quantifier_f: '',
@@ -386,26 +437,42 @@
         };
 
         function openModel(evt, modelName) {
-            let currentTabName = getCurrentTabName();
-            if (currentTabName) {
-                tabContents[currentTabName] = document.getElementById('tabContents').value;
-            }
+            updateTabContents();
             let tablinks = document.getElementsByClassName("tablinks");
             for (let i = 0; i < tablinks.length; i++) {
                 tablinks[i].classList.remove("active");
             }
             evt.currentTarget.classList.add("active");
-            document.getElementById('tabContents').value = tabContents[modelName];
-            document.getElementById('fileUpload').value = '';
-            document.getElementById('tabContents').focus();
+            // Find and display the content for the selected model tab
+            let modelContent = tabContents.models.find(model => Object.keys(model)[0] === modelName);
+            if (modelContent) {
+                document.getElementById('tabContents').value = modelContent[modelName];
+            } else if (modelName === 'p_hq') {
+                // Handle the special case for the property tab
+                document.getElementById('tabContents').value = tabContents.p_hq;
+            }
+        }
+
+        // Function to get model names from tabContents
+        function getModelNames() {
+            if (tabContents && Array.isArray(tabContents.models)) {
+                return tabContents.models.map(model => Object.keys(model)[0]);
+            } else {
+                console.error("tabContents.models is not defined or is not an array.");
+                return [];
+            }
         }
 
         // Function to get the name of the currently active tab
         function getCurrentTabName() {
             let activeTab = document.querySelector('.tablinks.active');
+            console.log("active tab", activeTab);
             if (activeTab) {
                 const tab_name = activeTab.textContent.trim().replace(/\s+/g, '_').toLowerCase();
-                if (model_tabs.includes(tab_name)) {
+                console.log("tab name", tab_name);
+                const model_names = getModelNames();
+                console.log(model_names);
+                if (model_names.includes(tab_name)) {
                     console.log("Currently active tab", tab_name);
                     return tab_name;
                 }    

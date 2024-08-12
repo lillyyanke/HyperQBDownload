@@ -47,6 +47,7 @@ function processFile(outputFolder, fileName, fileContent) {
     return filePathWDir;
 }
 
+// Extract the binary from the dist to the users computer
 function extractBinary(bin) {
     const binaryPath = path.join(__dirname, 'bin', bin);
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'electron-'));
@@ -58,7 +59,7 @@ function extractBinary(bin) {
     }
     catch (err) {
         console.error('Failed to extract binary: ', err);
-        throw err; // Propagate the error for further handling
+        throw err;
     }
     
     return destinationPath;
@@ -68,7 +69,7 @@ function extractBinary(bin) {
 ipcMain.handle('process-files', async (event, data) => {
     try {
         const {
-            model_a, model_b, p_hq, number_k, semantics, test_folder
+            models, p_hq, number_k, semantics, test_folder
             // model_1_init, model_1_trans, model_2_init, model_2_trans, p_hq,
             // number_k, quantifier_f, semantics, test_folder
         } = data;
@@ -99,13 +100,26 @@ ipcMain.handle('process-files', async (event, data) => {
         // const R1 = processFile(outputFolder, 'R_1.bool', model_1_trans);
         // const R2 = processFile(outputFolder, 'R_2.bool', model_2_trans);
         // const P = processFile(outputFolder, 'P.hq', p_hq);
-
-
-        const modelA = processFile(outputFolder, 'model_a.smv', model_a);
-        const modelB = processFile(outputFolder, 'model_b.smv', model_b);
-        const P = processFile(outputFolder, 'property.hq', p_hq);
+        // const modelA = processFile(outputFolder, 'model_a.smv', model_a);
+        // const modelB = processFile(outputFolder, 'model_b.smv', model_b);
+        let processedFiles = [];
+        models.forEach((model, index) => {
+            // model is an object like {model_a: "mini.smv"}
+            for (const key in model) {
+                if (model.hasOwnProperty(key)) {
+                    console.log(`${key}: ${model[key]}`);
+                    processedFiles.push(processFile(outputFolder, key, model[key]));
+                    //loadFileContents(index, key, model[key], exampleData.test_folder, true); // Load the contents 
+                    // You can do something with each key-value pair here
+                }
+            }
+        });
+        //console.log("Models",models);
+        //console.log("models", models.map(model => console.log(outputFolder, model.name, model.content)));
+        //const processedFiles = models.map(model => processFile(outputFolder, model.name, model.content));
+        console.log("processedFiles", processedFiles);
+        const P = processFile(outputFolder, 'p_hq', p_hq);
         
-
         // Extract binaries
         const genBinPath = extractBinary('genqbf');
         const quabsBinPath = extractBinary('quabs');
@@ -134,16 +148,16 @@ ipcMain.handle('process-files', async (event, data) => {
         //let genOutput = await execCommand(commandGen);
         //console.log(`GenOutput: ${genOutput}`);
 
-
-
         // HYPER RUST
         // const miniPath = path.join(__dirname, 'HyperRust', "mini", 'mini.smv');
         // const miniHQPath = path.join(__dirname, 'HyperRust', "mini", 'mini.hq');
-        const commandHyperRust = `${hyperRustBinPath} ${modelA} ${modelB} ${P}`;
+        // Prepare command with all model files
+        const modelFiles = processedFiles.join(' ');
+        console.log(modelFiles);
+        const commandHyperRust = `${hyperRustBinPath} ${modelFiles} ${P}`;
         console.log(`CommandHyperRust: ${commandHyperRust}`);
         let hyperOutput = await execCommand (commandHyperRust);
         console.log(`Hyper Output: ${hyperOutput}`);
-
         const outputPath = path.join(__dirname, 'outputs', "HQ.qcir");
         console.log(outputPath);
         fs.copyFileSync(outputPath, outputFile);
@@ -154,7 +168,6 @@ ipcMain.handle('process-files', async (event, data) => {
         // Write the result to a file
         const resultFilePath = path.join(desktopDirectory, outputFolder, 'result.txt');
         fs.writeFileSync(resultFilePath, quabsOutput);
-
         return { result: quabsOutput};
     } catch (error) {
         console.error(`Error: ${error.message}`);
